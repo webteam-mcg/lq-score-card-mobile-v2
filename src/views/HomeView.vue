@@ -14,12 +14,22 @@
           <v-tab
             v-if="first_batting_team"
           >
-            {{first_batting_team.toUpperCase()}}
+            {{first_batting_team.toUpperCase()}} 1<sup>ST</sup>
           </v-tab>
           <v-tab
             v-if="second_batting_team"
           >
-            {{second_batting_team.toUpperCase()}}
+            {{second_batting_team.toUpperCase()}} 1<sup>ST</sup>
+          </v-tab>
+          <v-tab
+            v-if="third_batting_team"
+          >
+            {{third_batting_team.toUpperCase()}} 2<sup>ND</sup>
+          </v-tab>
+          <v-tab
+            v-if="fourth_batting_team"
+          >
+            {{fourth_batting_team.toUpperCase()}} 2<sup>ND</sup>
           </v-tab>
 
           <v-tabs-items v-model="tab">
@@ -119,6 +129,101 @@
               </v-row>
             </v-tab-item>
 
+            <v-tab-item
+              v-if="third_batting_team"
+            >
+              <v-row class="pb-5">
+                <v-col md="6" class="mx-auto">
+                  <v-data-table
+                      :headers="batting_headers"
+                      :items="third_batting"
+                      class="elevation-1"
+                      mobile-breakpoint="0"
+                      hide-default-footer
+                      disable-sort
+                      :items-per-page="-1"
+                  >
+                    <template v-slot:[`item.name`]="{ item }">
+                      {{ item.name }}
+                      <div class="text-caption font-weight-light grey--text">{{ item.status }}</div>
+                    </template>
+                    <template
+                      v-slot:[`body.append`]="{ headers }"
+                    >
+                      <tr>
+                        <td :colspan="headers.length">
+                          Extras: {{third_batting_extra}}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td :colspan="headers.length">
+                          Total: {{third_batting_total}}
+                        </td>
+                      </tr>
+                    </template>
+                  </v-data-table>
+                    <v-divider class="pb-5"></v-divider>
+                    <v-data-table
+                      :headers="bowling_headers"
+                      :items="third_bowling"
+                      class="elevation-1"
+                      mobile-breakpoint="0"
+                      hide-default-footer
+                      disable-sort
+                      :items-per-page="-1"
+                    >
+                    </v-data-table>
+                </v-col>
+              </v-row>
+            </v-tab-item>
+            <v-tab-item
+              v-if="fourth_batting_team"
+            >
+              <v-row class="pb-5">
+                <v-col md="6" class="mx-auto">
+                  <v-data-table
+                      :headers="batting_headers"
+                      :items="fourth_batting"
+                      class="elevation-1"
+                      mobile-breakpoint="0"
+                      hide-default-footer
+                      disable-sort
+                      :items-per-page="-1"
+                  >
+                    <template v-slot:[`item.name`]="{ item }">
+                      {{ item.name }}
+                      <div class="text-caption font-weight-light grey--text">{{ item.status }}</div>
+                    </template>
+                    <template
+                      v-slot:[`body.append`]="{ headers }"
+                    >
+                      <tr>
+                        <td :colspan="headers.length">
+                          Extras: {{fourth_batting_extra}}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td :colspan="headers.length">
+                          Total: {{fourth_batting_total}}
+                        </td>
+                      </tr>
+                    </template>
+                  </v-data-table>
+                    <v-divider class="pb-5"></v-divider>
+                    <v-data-table
+                      :headers="bowling_headers"
+                      :items="fourth_bowling"
+                      class="elevation-1"
+                      mobile-breakpoint="0"
+                      hide-default-footer
+                      disable-sort
+                      :items-per-page="-1"
+                    >
+                    </v-data-table>
+                </v-col>
+              </v-row>
+            </v-tab-item>
+
           </v-tabs-items>
 
           <v-tab-item>
@@ -153,6 +258,18 @@
         first_batting_total: null,
         second_batting_extra: null,
         second_batting_total: null,
+        third_batting: [],
+        third_bowling: [],
+        fourth_batting: [],
+        fourth_bowling: [],
+        third_batting_team: null,
+        third_bowling_team: null,
+        fourth_batting_team: null,
+        fourth_bowling_team: null,
+        third_batting_extra: null,
+        third_batting_total: null,
+        fourth_batting_extra: null,
+        fourth_batting_total: null,
         batting_headers: [
           { text: 'Batting', align: 'start', value: 'name', width: '100%'},
           { text: 'R', value: 'score', align: 'end'  },
@@ -182,6 +299,10 @@
       this.first_bowling_team = _.get(configSnap.data().inningOrder[0], 'team', null);
       this.second_batting_team = _.get(configSnap.data().inningOrder[1], 'team', null);
       this.second_bowling_team = _.get(configSnap.data().inningOrder[1], 'team', null);
+      this.third_batting_team = _.get(configSnap.data().inningOrder[2], 'team', null);
+      this.third_bowling_team = _.get(configSnap.data().inningOrder[2], 'team', null);
+      this.fourth_batting_team = _.get(configSnap.data().inningOrder[3], 'team', null);
+      this.fourth_bowling_team = _.get(configSnap.data().inningOrder[3], 'team', null);
     }
 
     const bowling_q = query(collection(db, "bowling"), orderBy("timestamp"));
@@ -235,6 +356,18 @@
         batting_row.sr = sr.toFixed(2);
         this.second_batting.push(batting_row);
       }
+
+      if (doc.data().team === this.third_batting_team && doc.data().inning === 2){
+        sr = (doc.data().score/doc.data().balls)*100
+        batting_row.sr = sr.toFixed(2);
+        this.third_batting.push(batting_row);
+      }
+
+      if (doc.data().team === this.fourth_batting_team && doc.data().inning === 2){
+        sr = (doc.data().score/doc.data().balls)*100
+        batting_row.sr = sr.toFixed(2);
+        this.fourth_batting.push(batting_row);
+      }
     });
 
     const inning_q = query(collection(db, "innings"));
@@ -280,6 +413,46 @@
         extras = extras+")"
 
         this.second_batting_extra = extras;
+      }
+      if (doc.data().team === this.third_batting_team && doc.data().inning === 2){
+        this.third_batting_total = doc.data().score;
+
+        extras = doc.data().extra.total + " ( "
+        if (doc.data().extra.b > 0){
+          extras = extras + "b "+doc.data().extra.b+" ";
+        }
+        if (doc.data().extra.lb > 0){
+          extras = extras + "lb " + doc.data().extra.lb + " "
+        }
+        if (doc.data().extra.nb > 0){
+          extras = extras + "nb " + doc.data().extra.nb + " "
+        }
+        if (doc.data().extra.wd > 0){
+          extras = extras + "wd " + doc.data().extra.wd + " "
+        }
+        extras = extras+")"
+
+        this.third_batting_extra = extras;
+      }
+      if (doc.data().team === this.fourth_batting_team && doc.data().inning === 2){
+        this.fourth_batting_total = doc.data().score;
+
+        extras = doc.data().extra.total + " ( "
+        if (doc.data().extra.b > 0){
+          extras = extras + "b "+doc.data().extra.b+" ";
+        }
+        if (doc.data().extra.lb > 0){
+          extras = extras + "lb " + doc.data().extra.lb + " "
+        }
+        if (doc.data().extra.nb > 0){
+          extras = extras + "nb " + doc.data().extra.nb + " "
+        }
+        if (doc.data().extra.wd > 0){
+          extras = extras + "wd " + doc.data().extra.wd + " "
+        }
+        extras = extras+")"
+
+        this.fourth_batting_extra = extras;
       }
     });
 
