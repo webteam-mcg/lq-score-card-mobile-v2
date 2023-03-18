@@ -335,6 +335,28 @@
 
         this.second_bowling.push(bowling_row);
       }
+
+      if (doc.data().team === this.third_bowling_team && doc.data().inning === 2){
+
+        overs = Math.floor(doc.data().balls/6)+(doc.data().balls%6)/10;
+        bowling_row.overs = overs;
+
+        econ = doc.data().score/overs
+        bowling_row.econ = econ.toFixed(2);
+
+        this.third_bowling.push(bowling_row);
+      }
+
+      if (doc.data().team === this.fourth_bowling_team && doc.data().inning === 2){
+
+        overs = Math.floor(doc.data().balls/6)+(doc.data().balls%6)/10;
+        bowling_row.overs = overs;
+
+        econ = doc.data().score/overs
+        bowling_row.econ = econ.toFixed(2);
+
+        this.fourth_bowling.push(bowling_row);
+      }
     });
 
     const batting_q = query(collection(db, "batting"), orderBy("timestamp"));
