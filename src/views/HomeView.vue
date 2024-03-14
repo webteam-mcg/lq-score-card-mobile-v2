@@ -14,12 +14,12 @@
           <v-tab
             v-if="first_batting_team"
           >
-            {{first_batting_team.toUpperCase()}}
+            {{first_batting_team.toUpperCase()}} 1<sup>ST</sup>
           </v-tab>
           <v-tab
             v-if="second_batting_team"
           >
-            {{second_batting_team.toUpperCase()}}
+            {{second_batting_team.toUpperCase()}} 1<sup>ST</sup>
           </v-tab>
           <v-tab
             v-if="third_batting_team"
